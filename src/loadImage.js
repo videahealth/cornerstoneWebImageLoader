@@ -1,5 +1,5 @@
 import { external } from './externalModules.js';
-import arrayBufferToImage from './arrayBufferToImage.js';
+import base64ToImage from './base64ToImage.js';
 import createImage from './createImage.js';
 
 //
@@ -12,54 +12,15 @@ let options = {
 
 
 // Loads an image given a url to an image
-export function loadImage (imageId) {
+export function loadImage (base64image, imageId) {
   const cornerstone = external.cornerstone;
 
-  const xhr = new XMLHttpRequest();
+  const imagePromise = base64ToImage(base64image);
 
-  xhr.open('GET', imageId, true);
-  xhr.responseType = 'arraybuffer';
-  options.beforeSend(xhr);
-
-  xhr.onprogress = function (oProgress) {
-    if (oProgress.lengthComputable) {
-      // evt.loaded the bytes browser receive
-      // evt.total the total bytes set by the header
-      const loaded = oProgress.loaded;
-      const total = oProgress.total;
-      const percentComplete = Math.round((loaded / total) * 100);
-
-      const eventData = {
-        imageId,
-        loaded,
-        total,
-        percentComplete
-      };
-
-      cornerstone.triggerEvent(cornerstone.events, 'cornerstoneimageloadprogress', eventData);
-    }
-  };
-
-  const promise = new Promise((resolve, reject) => {
-    xhr.onload = function () {
-      const imagePromise = arrayBufferToImage(this.response);
-
-      imagePromise.then((image) => {
-        const imageObject = createImage(image, imageId);
-
-        resolve(imageObject);
-      }, reject);
-    };
-
-    xhr.send();
-  });
-
-  const cancelFn = () => {
-    xhr.abort();
-  };
+  const imageObject = createImage(imagePromise, imageId);
 
   return {
-    promise,
+    imageObject,
     cancelFn
   };
 }

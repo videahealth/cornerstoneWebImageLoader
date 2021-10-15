@@ -1,10 +1,10 @@
-import arrayBufferToImage from './arrayBufferToImage.js';
+import base64ToImage from './base64ToImage';
 import createImage from './createImage.js';
 import { loadImage, configure } from './loadImage.js';
 import { external } from './externalModules.js';
 
 const cornerstoneWebImageLoader = {
-  arrayBufferToImage,
+  base64ToImage,
   createImage,
   loadImage,
   configure,
